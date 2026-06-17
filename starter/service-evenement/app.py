@@ -119,6 +119,11 @@ def inscrire_evenement(id):
         if inscription_existante:
             return jsonify({"erreur": "Vous êtes déjà inscrit à cet événement"}), 409
         
+        # Vérifier que l'événement n'est pas complet
+        nb_inscrits = s.query(db.Inscriptions).filter_by(idEvenement=id).count()
+        if nb_inscrits >= evenement.nb_places:
+            return jsonify({"erreur": "L'événement est complet"}), 409
+        
         # Ajouter l'inscription
         nouvelle_inscription = db.Inscriptions(joueur=pseudo, idEvenement=id)
         s.add(nouvelle_inscription)
