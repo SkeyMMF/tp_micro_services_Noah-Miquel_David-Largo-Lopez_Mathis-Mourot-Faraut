@@ -8,6 +8,7 @@ Ce fichier ne donne QUE la charpente : à vous d'écrire les routes de votre dom
 (voir 2-contrats.md pour celles qu'on attend de votre service).
 """
 from flask import Flask, request, jsonify
+from sqlalchemy import select
 
 import db
 from auth import require_jwt, require_role  # à compléter dans auth.py ; protège vos écritures
@@ -42,6 +43,38 @@ def metrics():
 #     (request.joueur["pseudo"], request.joueur["roles"]) ;
 #   - une session de base par requête : `with db.Session() as s: ...` ;
 #   - renvoyez du JSON et le bon code (201 créé, 400 mal formé, 404, 409...).
+
+
+@app.route("/", methods=["GET"])
+def liste_evenements():
+    """GET / -liste de tous les evenements"""
+    return True
+    
+
+@app.route("/", methods=["POST"])
+@require_role("admin")
+def creer_evenement(): 
+     """POST / — crée un événement (admin).""" 
+     return True 
+     
+
+
+@app.route("/<int:id>/inscription", methods=["POST"])
+@require_jwt
+def inscrire_evenement(id):
+    """POST /<id>/inscription — inscription à un événement (joueur)."""
+    return True
+
+
+@app.route("/<int:id>/inscris", methods=["GET"])
+def liste_inscrits(id):
+    """GET /<id>/inscris — liste des inscrits à un événement."""
+    return True
+
+
+
+
+
 
 
 if __name__ == "__main__":
