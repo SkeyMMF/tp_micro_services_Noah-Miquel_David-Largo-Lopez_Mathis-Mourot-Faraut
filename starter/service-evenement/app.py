@@ -80,7 +80,27 @@ def creer_evenement():
 @require_jwt
 def inscrire_evenement(id):
     """POST /<id>/inscription — inscription à un événement (joueur)."""
-    return True
+    pseudo = request.joueur["pseudo"]
+    
+    with db.Session() as s:
+        # Vérifier que l'événement existe
+        evenement = s.query(db.Evenenement).filter_by(id=id).first()
+        if not evenement:
+            return jsonify({"erreur": "Événement introuvable"}), 404
+        
+        # Vérifier que le joueur n'est pas déjà inscrit
+        inscription_existante = s.query(db.Inscriptions).filter_by(
+            joueur=pseudo, idEvenement=id
+        ).first()
+        if inscription_existante:
+            return jsonify({"erreur": "Vous êtes déjà inscrit à cet événement"}), 409
+        
+        # Ajouter l'inscription
+        nouvelle_inscription = db.Inscriptions(joueur=pseudo, idEvenement=id)
+        s.add(nouvelle_inscription)
+        s.commit()
+        
+        return jsonify({"message": "Inscription réussie"}), 201
 
 
 @app.route("/<int:id>/inscrits", methods=["GET"])
