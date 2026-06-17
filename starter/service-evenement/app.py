@@ -59,7 +59,23 @@ def metrics():
 @app.route("/", methods=["GET"])
 def liste_evenements():
     """GET / -liste de tous les evenements"""
-    return True
+    with db.Session() as s:
+        evs = s.scalars(select(db.Evenement)).all()
+        return jsonify([
+            {
+                "id": e.id,
+                "nom": e.nom,
+                "date": e.date,
+                "nb_places": e.nb_places,
+                "statut": e.statut,
+                "x": e.cordx,
+                "y": e.cordy,
+                "z": e.cordz,
+            }
+            for e in evs
+        ])
+    
+    
     
 
 @app.route("/", methods=["POST"])
@@ -88,13 +104,39 @@ def creer_evenement():
 @require_jwt
 def inscrire_evenement(id):
     """POST /<id>/inscription — inscription à un événement (joueur)."""
-    return True
+    pseudo = request.joueur["pseudo"]
+    
+    with db.Session() as s:
+        # Vérifier que l'événement existe
+        evenement = s.query(db.Evenenement).filter_by(id=id).first()
+        if not evenement:
+            return jsonify({"erreur": "Événement introuvable"}), 404
+        
+        # Vérifier que le joueur n'est pas déjà inscrit
+        inscription_existante = s.query(db.Inscriptions).filter_by(
+            joueur=pseudo, idEvenement=id
+        ).first()
+        if inscription_existante:
+            return jsonify({"erreur": "Vous êtes déjà inscrit à cet événement"}), 409
+        
+        # Ajouter l'inscription
+        nouvelle_inscription = db.Inscriptions(joueur=pseudo, idEvenement=id)
+        s.add(nouvelle_inscription)
+        s.commit()
+        
+        return jsonify({"message": "Inscription réussie"}), 201
 
 
-@app.route("/<int:id>/inscris", methods=["GET"])
+@app.route("/<int:id>/inscrits", methods=["GET"])
 def liste_inscrits(id):
-    """GET /<id>/inscris — liste des inscrits à un événement."""
-    return True
+    """GET /<id>/inscrits — liste des inscrits à un événement."""
+    with db.Session() as s:
+        ev = s.get(db.Evenement, id)
+        if ev is None:
+            return jsonify({"erreur": "Événement introuvable"}), 404
+        return jsonify([i.pseudo for i in ev.inscriptions])
+   
+    
 
 
 
