@@ -56,17 +56,16 @@ def liste_evenements():
                 "id": e.id,
                 "nom": e.nom,
                 "date": e.date,
-                "places": e.places,
-                "inscrits": len(e.inscriptions),
+                "nb_places": e.nb_places,
                 "statut": e.statut,
-                "x": e.x,
-                "y": e.y,
-                "z": e.z,
+                "x": e.cordx,
+                "y": e.cordy,
+                "z": e.cordz,
             }
             for e in evs
         ])
     
-    return True
+    
     
 
 @app.route("/", methods=["POST"])
@@ -84,10 +83,16 @@ def inscrire_evenement(id):
     return True
 
 
-@app.route("/<int:id>/inscris", methods=["GET"])
+@app.route("/<int:id>/inscrits", methods=["GET"])
 def liste_inscrits(id):
-    """GET /<id>/inscris — liste des inscrits à un événement."""
-    return True
+    """GET /<id>/inscrits — liste des inscrits à un événement."""
+    with db.Session() as s:
+        ev = s.get(db.Evenement, id)
+        if ev is None:
+            return jsonify({"erreur": "Événement introuvable"}), 404
+        return jsonify([i.pseudo for i in ev.inscriptions])
+   
+    
 
 
 
