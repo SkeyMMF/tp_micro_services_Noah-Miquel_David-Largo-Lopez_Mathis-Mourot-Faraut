@@ -11,7 +11,7 @@ docker-compose.yml). Vous avez découvert ce pattern au TP 12.
 """
 import os
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 DB_PATH = os.environ.get("DB_PATH", "data.db")
@@ -36,6 +36,26 @@ class Base(DeclarativeBase):
 #       nom: Mapped[str]
 #
 # Définissez ici les tables de VOTRE domaine (comptes, objets, scores...).
+class Evenenement(Base):
+    __tablename__ = "Evenement"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    nom: Mapped[str]
+    cordx: Mapped[float]
+    cordy: Mapped[float]
+    cordz: Mapped[float]
+    nb_places: Mapped[int]
+    date: Mapped[str]
+    statut: Mapped[str]
+
+class Inscriptions(Base):
+    __tablename__ = "Inscriptions"
+
+    joueur: Mapped[str] = mapped_column(primary_key=True)
+
+    idEvenement: Mapped[int] = mapped_column(
+        ForeignKey("Evenement.id"),
+        primary_key=True
+    )
 
 
 def init():

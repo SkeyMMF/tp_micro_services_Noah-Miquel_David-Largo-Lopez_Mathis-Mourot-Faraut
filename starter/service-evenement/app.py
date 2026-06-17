@@ -18,6 +18,7 @@ db.init()
 
 _metriques = {"requetes": 0}
 
+session = db.Session()
 
 @app.before_request
 def _compter():
