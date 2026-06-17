@@ -48,6 +48,23 @@ def metrics():
 @app.route("/", methods=["GET"])
 def liste_evenements():
     """GET / -liste de tous les evenements"""
+    with db.Session() as s:
+        evs = s.scalars(select(db.Evenement)).all()
+        return jsonify([
+            {
+                "id": e.id,
+                "nom": e.nom,
+                "date": e.date,
+                "places": e.places,
+                "inscrits": len(e.inscriptions),
+                "statut": e.statut,
+                "x": e.x,
+                "y": e.y,
+                "z": e.z,
+            }
+            for e in evs
+        ])
+    
     return True
     
 
