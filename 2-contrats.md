@@ -128,9 +128,12 @@ Exemple : `POST /comptes/login` arrive en `POST /login` sur `service-comptes`.
 | Méthode | Route (interne) | Auth | Rôle |
 |--------:|:------|:-----|:-----|
 | GET | `/` | - | liste `[{id, nom, date, places, inscrits, statut}]` |
-| POST | `/` | admin | crée `{nom, date, x, y, z, places}` |   
-corps attendus dans la requètes : 
-'''json
+| POST | `/` | admin | crée `{nom, date, x, y, z, places}` |  
+| POST | `/<id>/inscription` | jwt | inscrit le joueur du jeton | 
+| GET | `/<id>/inscrits` | - | liste des pseudos |
+
+corps attendus dans la requète de création de l'évènement : 
+```json
 {
   "nom":"nom de l'évenement",
   "date":"date",
@@ -140,13 +143,13 @@ corps attendus dans la requètes :
   "places": 5000, 
   "statut": "statut"
 }
-'''  
-**400**: si un champs est manquant, sinon renvoi un 201
-| POST | `/<id>/inscription` | jwt | inscrit le joueur du jeton |  
-Liste erreur possible : 
-**404**: Inscriptions a un évenement inexistant
-**409**: Si le joueur est déjà inscrit/plus de places
-| GET | `/<id>/inscrits` | - | liste des pseudos |
+```  
+**400**: si un champs est manquant, sinon renvoi un 201    
+
+Liste erreur possible pour l'inscription:     
+**404**: Inscriptions a un évenement inexistant  
+**409**: Si le joueur est déjà inscrit/plus de places  
+
 
 *À compléter par l'équipe : routes étoffées et détail des champs JSON.*
 
